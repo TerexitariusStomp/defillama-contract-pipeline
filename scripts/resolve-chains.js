@@ -8,8 +8,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Chain metadata mapping (chain name -> chain ID and RPC)
-const CHAIN_METADATA = {
-  'ethereum': { chain_id: 1, rpc_url: 'https://mainnet.infura.io/v3/YOUR_INFURA_KEY' },
+const CHAIN_METADATA = {  'ethereum': { chain_id: 1, rpc_url: 'https://mainnet.infura.io/v3/YOUR_INFURA_KEY' },
   'arbitrum': { chain_id: 42161, rpc_url: 'https://arb-mainnet.g.alchemy.com/v2/YOUR_KEY' },
   'optimism': { chain_id: 10, rpc_url: 'https://mainnet.optimism.io' },
   'polygon': { chain_id: 137, rpc_url: 'https://polygon-rpc.com' },
@@ -21,8 +20,31 @@ const CHAIN_METADATA = {
   'gnosis': { chain_id: 100, rpc_url: 'https://rpc.xdaichain.com' },
   'solana': { chain_id: 101, rpc_url: 'https://solana-api.projectserum.com' },
   'cosmos': { chain_id: 118, rpc_url: 'https://stargate.cosmos.network' },
-  // Add more chains as needed
-};
+  'wan': { chain_id: 888, rpc_url: 'https://rpc.wanchain.io' },
+  'avax': { chain_id: 43114, rpc_url: 'https://api.avax.network/exchange' },
+  'moonriver': { chain_id: 1285, rpc_url: 'https://rpc-moonriver.moonbeam.network' },
+  'moonbeam': { chain_id: 1284, rpc_url: 'https://rpc.moonbeam.network' },
+  'linea': { chain_id: 50701, rpc_url: 'https://linea.publicnode.com' },
+  'op_bnb': { chain_id: 8453, rpc_url: 'https://base-blockscout.com' },
+  'era': { chain_id: 5133, rpc_url: 'https://rpc.ankr.com/aurora' },
+  'polygon_zkevm': { chain_id: 16696, rpc_url: 'https://polygon-zkevm.rpc.rivet.cloud' },
+  'xlayer': { chain_id: 40404, rpc_url: 'https://rpc.xlayer.io' },
+  'aurora': { chain_id: 5133, rpc_url: 'https://rpc.ankr.com/aurora' },
+  'heco': { chain_id: 128, rpc_url: 'https://http-mainnet.hecochain.com' },
+  'okt': { chain_id: 66, rpc_url: 'https://exchainrpc.okex.org' },
+  'cronos': { chain_id: 25, rpc_url: 'https://evm-cronos.crypto.com' },
+  'kava': { chain_id: 1317, rpc_url: 'https://rpc.kava.io' },
+  'fuse': { chain_id: 122, rpc_url: 'https://rpc.fuse.io' },
+  'song': { chain_id: 80, rpc_url: 'https://rpc.songbird.network' },
+  'fire': { chain_id: 1313, rpc_url: 'https://rpc.ankr.com/ethw' },
+  'xdai': { chain_id: 100, rpc_url: 'https://rpc.xdaichain.com' },
+  'arbitrum_nova': { chain_id: 42170, rpc_url: 'https://nova.arbitrum.io' },
+  'scroll': { chain_id: 9999, rpc_url: 'https://scroll-mainnet.g.alchemy.com' },
+  'mode': { chain_id: 84531, rpc_url: 'https://rpc.mode.network' },
+  'zksync': { chain_id: 280, rpc_url: 'https://zksync.io' },
+  'boba': { chain_id: 288, rpc_url: 'https://bobanet.ankr.com' },
+  'harmony': { chain_id: 1666600000, rpc_url: 'https://rpc.harmony.one' },
+  'ton': { chain_id: 223317, rpc_url: 'https://ton.rpc.covalent.co' }};
 
 function resolveChain(chainName) {
   const normalized = chainName.toLowerCase().trim();

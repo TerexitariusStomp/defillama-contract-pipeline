@@ -26,6 +26,160 @@ class ExtractedContract {
   }
 }
 
+// Enhanced chain inference functions
+function inferChainFromAddress(address) {
+  const lowerAddr = address.toLowerCase();
+  
+  // Non-EVM chains (based on address prefix)
+  if (lowerAddr.startsWith('so')) {
+    // Solana program address (base58, starts with 'So')
+    return 'solana';
+  }
+  if (lowerAddr.startsWith('cosmos1')) {
+    return 'cosmos';
+  }
+  if (lowerAddr.startsWith('t')) {
+    // TRON address
+    return 'tron';
+  }
+  if (lowerAddr.startsWith('1') || lowerAddr.startsWith('3') || lowerAddr.startsWith('bc1')) {
+    // Bitcoin addresses
+    return 'bitcoin';
+  }
+  if (lowerAddr.startsWith('bnb')) {
+    // Binance Smart Chain (BEP-20) addresses often start with 'bnb'
+    return 'bsc';
+  }
+  if (lowerAddr.startsWith('0x') && lowerAddr.length === 42) {
+    // EVM address format - could be any EVM chain
+    // We'll need to infer from protocol or leave as unknown
+    return null; // null means need to infer from protocol
+  }
+  
+  // Default for other patterns
+  return null;
+}
+
+function inferChainFromProtocol(protocolSlug) {
+  // Map of protocol slug keywords to chains
+  const PROTOCOL_CHAINS = {
+    // Solana
+    'solana': 'solana',
+    'phantom': 'solana',
+    'raydium': 'solana',
+    'orca': 'solana',
+    'saber': 'solana',
+    'lido': 'solana', // Lido on Solana
+    'marginfi': 'solana',
+    'kamino': 'solana',
+    'jupiter': 'solana',
+    'step': 'solana',
+    // Cosmos
+    'cosmos': 'cosmos',
+    'osmosis': 'cosmos',
+    'akash': 'cosmos',
+    'band': 'cosmos',
+    'terra': 'cosmos', // Terra is a Cosmos fork
+    'thorchain': 'cosmos',
+    'secret': 'cosmos',
+    'persistence': 'cosmos',
+    'kava': 'cosmos',
+    // TRON
+    'tron': 'tron',
+    'just': 'tron',
+    'sun': 'tron',
+    'wink': 'tron',
+    // Bitcoin
+    'bitcoin': 'bitcoin',
+    'stacks': 'bitcoin',
+    'pox': 'bitcoin',
+    'lightning': 'bitcoin',
+    // Ethereum L2s and sidechains
+    'arbitrum': 'arbitrum',
+    'optimism': 'optimism',
+    'polygon': 'polygon',
+    'base': 'base',
+    'linea': 'linea',
+    'zksync': 'zksync',
+    'arbitrum': 'arbitrum',
+    'avalanche': 'avax',
+    'celo': 'celo',
+    'fantom': 'fantom',
+    'gnosis': 'xdai',
+    'bsc': 'bsc',
+    'heco': 'heco',
+    'okt': 'okt',
+    // Ethereum mainnet
+    'aave': 'ethereum', // Aave has multiple deployments but started on Ethereum
+    'uniswap': 'ethereum', // Uniswap started on Ethereum
+    'compound': 'ethereum',
+    'maker': 'ethereum',
+    'yearn': 'ethereum',
+    'lido': 'ethereum', // Lido on Ethereum
+    'curve': 'ethereum',
+    'balancer': 'ethereum',
+    'synthetic': 'ethereum',
+    'uniswap': 'ethereum',
+    'sushiswap': 'ethereum',
+    'instadapp': 'ethereum',
+    'dydx': 'ethereum',
+    'synthetix': 'ethereum',
+    'keep': 'ethereum',
+    'uma': 'ethereum',
+    'airswap': 'ethereum',
+    'bzx': 'ethereum',
+    'connext': 'ethereum',
+    'deck': 'ethereum',
+    'dforce': 'ethereum',
+    'melon': 'ethereum',
+    'nftx': 'ethereum',
+    'opyn': 'ethereum',
+    'set': 'ethereum',
+    'tellor': 'ethereum',
+    'uma': 'ethereum',
+    'unisocks': 'ethereum',
+    'value': 'ethereum',
+    'vega': 'ethereum',
+    'velodrome': 'ethereum',
+    'vsp': 'ethereum',
+    'wormhole': 'ethereum',
+    // Other
+    'gnosis': 'xdai',
+  };
+
+  // Check for exact matches first
+  if (PROTOCOL_CHAINS[protocolSlug]) {
+    return PROTOCOL_CHAINS[protocolSlug];
+  }
+
+  // Check for partial matches (protocols that contain keywords)
+  for (const [key, chain] of Object.entries(PROTOCOL_CHAINS)) {
+    if (protocolSlug.includes(key) && key.length > 2) {
+      return chain;
+    }
+  }
+
+  return null; // null means we couldn't infer from protocol
+}
+
+function normalizeChainName(raw) {
+  const MAP = {
+    ethereum: 'ethereum', eth: 'ethereum',
+    arbitrum: 'arbitrum', arb: 'arbitrum',
+    optimism: 'optimism', op: 'optimism',
+    polygon: 'polygon', matic: 'polygon',
+    bsc: 'bsc', binance: 'bsc',
+    avalanche: 'avax', avax: 'avax',
+    base: 'base',
+    celo: 'celo',
+    fantom: 'fantom', ftm: 'fantom',
+    gnosis: 'xdai', xdai: 'xdai',
+    solana: 'solana',
+    cosmos: 'cosmos',
+  };
+  return MAP[raw.toLowerCase()] || raw.toLowerCase() || 'unknown';
+}
+
 function extractFromFile(filePath, protocolSlug) {
   const results = [];
   let code;
@@ -54,7 +208,6 @@ function extractFromFile(filePath, protocolSlug) {
   let found = 0;
 
   try {
-
 
     traverse(ast, {
     ObjectExpression(path) {
@@ -89,7 +242,26 @@ function extractFromFile(filePath, protocolSlug) {
         result.chain = chain;
         result.extraction_pattern = 'sdk_call';
         result.abi_inline = abiValue;
-        result.confidence = chain !== 'unknown' ? 'high' : 'medium';
+        
+        // Apply chain inference if still unknown
+        if (result.chain === 'unknown') {
+          const inferred = inferChainFromAddress(result.address);
+          if (inferred) {
+            result.chain = inferred;
+            result.confidence = 'medium';
+          } else {
+            const inferredProto = inferChainFromProtocol(protocolSlug);
+            if (inferredProto) {
+              result.chain = inferredProto;
+              result.confidence = 'medium';
+            } else {
+              result.confidence = 'low';
+            }
+          }
+        } else {
+          result.confidence = 'high';
+        }
+        
         results.push(result);
         found++;
       }
@@ -102,9 +274,24 @@ function extractFromFile(filePath, protocolSlug) {
         result.protocol_slug = protocolSlug;
         result.adapter_file = filePath;
         result.address = init.value;
-        result.chain = 'unknown';
+        
+        // Try to infer chain from address and protocol
+        const inferredAddr = inferChainFromAddress(init.value);
+        if (inferredAddr) {
+          result.chain = inferredAddr;
+          result.confidence = 'medium';
+        } else {
+          const inferredProto = inferChainFromProtocol(protocolSlug);
+          if (inferredProto) {
+            result.chain = inferredProto;
+            result.confidence = 'medium';
+          } else {
+            result.chain = 'unknown';
+            result.confidence = 'low';
+          }
+        }
+        
         result.extraction_pattern = 'constant';
-        result.confidence = 'low';
         results.push(result);
         found++;
       }
@@ -117,6 +304,7 @@ function extractFromFile(filePath, protocolSlug) {
             result.protocol_slug = protocolSlug;
             result.adapter_file = filePath;
             result.address = val;
+            // Try to infer chain from the key (property name)
             result.chain = normalizeChainName(key);
             result.extraction_pattern = 'constant';
             result.confidence = 'high';
@@ -172,6 +360,7 @@ function extractFromFile(filePath, protocolSlug) {
 
 
     });
+
   } catch (e) {
     console.log(`    Traversal failed, using regex fallback: ${e.message}`);
     return regexFallbackExtract(code, filePath, protocolSlug);
@@ -183,7 +372,7 @@ function extractFromFile(filePath, protocolSlug) {
 
 function regexFallbackExtract(code, filePath, slug) {
   const results = [];
-  const matches = code.matchAll(/['"`](0x[a-fA-F0-9]{40})['"`]/g);
+  const matches = code.matchAll(/['"](0x[a-fA-F0-9]{40})['"]/g);
   let count = 0;
   for (const match of matches) {
     const result = new ExtractedContract();
@@ -198,24 +387,6 @@ function regexFallbackExtract(code, filePath, slug) {
   }
   console.log(`  Regex fallback found ${count} addresses`);
   return results;
-}
-
-function normalizeChainName(raw) {
-  const MAP = {
-    ethereum: 'ethereum', eth: 'ethereum',
-    arbitrum: 'arbitrum', arb: 'arbitrum',
-    optimism: 'optimism', op: 'optimism',
-    polygon: 'polygon', matic: 'polygon',
-    bsc: 'bsc', binance: 'bsc',
-    avalanche: 'avax', avax: 'avax',
-    base: 'base',
-    celo: 'celo',
-    fantom: 'fantom', ftm: 'fantom',
-    gnosis: 'xdai', xdai: 'xdai',
-    solana: 'solana',
-    cosmos: 'cosmos',
-  };
-  return MAP[raw.toLowerCase()] || raw.toLowerCase() || 'unknown';
 }
 
 // Main execution

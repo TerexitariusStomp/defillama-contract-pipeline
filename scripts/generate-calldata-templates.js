@@ -95,38 +95,188 @@ const CHAIN_RPC_ENDPOINTS = {
   10: 'https://xdai-mainnet.g.alchemy.com/jsonrpc'
 };
 
+
+/** 
+ * Infer chain from adapter content (RPC URLs, chain IDs, etc.)
+ * @param {string} adapterContent - Content of the adapter JavaScript file
+ * @returns {string|null} - Inferred chain name or null if unknown
+ */
+function inferChainFromAdapterContent(adapterContent) {
+  if (!adapterContent) return null;
+  
+  // Look for common RPC URLs or chain identifiers
+  const chainPatterns = {
+    'ethereum': [/eth\.scan/i, /etherscan\.io/, /eth-rpc\.io/, /infura\/eth/],
+    'bsc': [/bscscan\.com/, /bsc-dataseed\.binance\.org/, /bsc/],
+    'polygon': [/polygonscan\.com/, /polygon-rpc\.com/, /matic/],
+    'avalanche': [/snowtrace\.io/, /avalanche-rpc\.ava\.labs/],
+    'arbitrum': [/arbiscan\.io/, /arbitrum/],
+    'optimism': [/optimistic\.xyz/, /optimism/],
+    'linea': [/linea\.io/, /linea/],
+    'base': [/baserow\.io/, /base/],
+    'scroll': [/scroll\.io/, /scroll/],
+    'zkevm': [/zkevm/],
+    'fantom': [/ftmscan\.com/, /fantom/],
+    'cronos': [/cronoscan\.com/, /cronos/],
+    'celo': [/celoscan\.io/, /celo/],
+    'heco': [/hecoinfo\.com/, /heco/],
+    'okex': [/okexchain\.io/, /okex/],
+    'kava': [/kava\.io/, /kava/],
+    'harmony': [/harmony\.one/, /harmony/],
+    'aurora': [/aurora\.io/, /aurora/],
+    'gnosis': [/gnosisscan\.io/, /gnosis/],
+    'moonbeam': [/moonbeam\.network/, /moonbeam/],
+    'moonriver': [/moonriver\.network/, /moonriver/],
+    'astral': [/astral\.io/, /astral/],
+    'sonoma': [/sonoma/],
+    'opium': [/opium/],
+    'tron': [/tronscan\.org/, /tron/],
+    'cosmos': [/cosmos\.io/, /cosmos/],
+    'solana': [/solscan\.io/, /solana/],
+    'bitcoin': [/blockchain\.com/, /bitcoin/],
+    'litecoin': [/litecoin\.org/, /litecoin/],
+    'dogecoin': [/dogechain\.info/, /dogecoin/],
+    'cardano': [/cardanoscan\.io/, /cardano/],
+    'polkadot': [/polkadot\.io/, /polkadot/],
+    'kusama': [/kusama\.network/, /kusama/],
+    'near': [/nearscan\.io/, /near/],
+    'algorand': [/algorand\.org/, /algorand/],
+    'hedera': [/hedera\/hashgraph/, /hedera/],
+    'ripple': [/xrpl\.org/, /ripple/],
+    'stellar': [/stellar\.org/, /stellar/],
+    'eos': [/eos\.io/, /eos/],
+    'tezos': [/tezos\.com/, /tezos/],
+    'filecoin': [/filecoin\.io/, /filecoin/],
+    'chainlink': [/chainlink\.oracle/, /chainlink/],
+    'the-Graph': [/thegraph\.com/, /graph/],
+    'livepeer': [/livepeer\.org/, /livepeer/],
+    'ruflin': [/ruflin\.com/, /ruflin/],
+    'pooltogether': [/pooltogether\.com/, /pooltogether/],
+    'unisocks': [/unisocks\.app/, /unisocks/],
+    'tokenlon': [/tokenlon\.io/, /tokenlon/],
+    'dydx': [/dydx\.exchange/, /dydx/],
+    'maker': [/makerdao\.com/, /maker/],
+    'uniswap': [/uniswap\.org/, /uniswap/],
+    'aave': [/aave\.com/, /aave/],
+    'compound': [/compound\.finance/, /compound/],
+    'curve': [/curve\.finance/, /curve/],
+    'yearn': [/yearn\.finance/, /yearn/],
+    'sushi': [/sushi\.com/, /sushi/],
+    'pancakeswap': [/pancakeswap\.finance/, /pancake/],
+    'balancer': [/balancer\.finance/, /balancer/],
+    'hop': [/hop-protocol\.org/, /hop/],
+    'synapse': [/synapsebridge\.com/, /synapse/],
+    'layerzero': [/layerzero\.network/, /layerzero/],
+    'axelar': [/axelar\.network/, /axelar/],
+    'wormhole': [/wormhole\.crypto/, /wormhole/]
+  };
+  
+  // Check each chain pattern
+  for (const [chain, patterns] of Object.entries(chainPatterns)) {
+    if (patterns.some(pattern => pattern.test(adapterContent))) {
+      return chain;
+    }
+  }
+  
+  // Fallback: Try to infer chain from adapter file name or path
+  // This would need to be passed in or extracted from the file path
+  // For now, we'll leave this as a placeholder for future enhancement
+  return null;
+}
+
+
 /**
  * Generate calldata template for a single contract
  */
 function generateCalldataTemplate(contract) {
+  
   const template = {
     contract_address: contract.address,
     chain_id: contract.chain_id,
     chain_name: contract.chain_name,
-    protocol: contract.protocol,
-    adapter_path: contract.adapter_path,
+    protocol: contract.protocol_slug_slug,
+    adapter_file: contract.adapter_file,
     rpc_url: CHAIN_RPC_ENDPOINTS[contract.chain_id] || `https://rpc.${contract.chain_name}.io`,
-    abi: [], // Will be populated if available
+    abi: [],
     function_selectors: {},
-    example_calldata: {},
+    calldata: {},  // Renamed from example_calldata
     notes: []
   };
 
   // Try to extract ABI from adapter file if available
   try {
-    const adapterPath = path.join(__dirname, '..', contract.adapter_path);
+    console.log(`Processing ${contract.protocol_slug_slug}, adapter_file: ${contract.adapter_file}`);
+    const adapterPath = path.join(__dirname, '..', '.hermes', 'defillama-repos', 'DefiLlama-Adapters', contract.adapter_file);
     if (fs.existsSync(adapterPath)) {
       const adapterContent = fs.readFileSync(adapterPath, 'utf8');
       
-      // Extract ABI if present
-      const abiMatch = adapterContent.match(/abi\s*:\s*\[([\s\S]*?)\]/);
+      // Extract ABI if present - handle both array and object forms
+      let abiMatch = adapterContent.match(/abi\s*[=:]\s*(\[[^\]]+\]|\{[^}]+\})\s*[;,]?/s);
+      if (!abiMatch) {
+        // Try alternative pattern: abi: [ or abi: {
+        abiMatch = adapterContent.match(/abi\s*:\s*(\[[^\]]+\]|\{[^}]+\})\s*[;,]?/s);
+      }
+      if (!abiMatch) {
+        // Try assignment pattern: abi = 
+        abiMatch = adapterContent.match(/abi\s*=\s*(\[[^\]]+\]|\{[^}]+\})\s*[;,]?/s);
+      }
+      console.log(`[${contract.protocol_slug_slug}]: ` + (abiMatch ? 'match found' : 'no match') + (abiMatch && abiMatch[1] ? ', content: ' + abiMatch[1].slice(0,100) : ''));
       if (abiMatch) {
         try {
-          const abi = JSON.parse(abiMatch[1]);
-          template.abi = abi;
+          let abi = JSON.parse(abiMatch[1]);
+          
+          // Handle different ABI formats
+          if (Array.isArray(abi)) {
+            // Standard format: array of function objects
+            template.abi = abi;
+          } else if (typeof abi === 'object' && abi !== null) {
+            // Object format: convert to array of function objects
+            // Keys are function names, values are signature strings or objects
+            template.abi = Object.keys(abi).map(name => {
+              const sig = abi[name];
+              // If sig is a string, parse it to extract function name and inputs
+              if (typeof sig === 'string') {
+                // Try to parse signature like "transfer(address,uint256)"
+                const match = sig.match(/^([^()]+)\s*\(([^)]*)\)\s*(view|pure)?/);
+                if (match) {
+                  const inputs = match[2].split(',').map(t => t.trim()).filter(t => t);
+                  return {
+                    name: name,
+                    type: 'function',
+                    inputs: inputs.map(t => ({ name: '', type: t })),
+                    outputs: []
+                  };
+                } else {
+                  // Fallback: treat as a function with no inputs
+                  return {
+                    name: name,
+                    type: 'function',
+                    inputs: [],
+                    outputs: []
+                  };
+                }
+              } else if (typeof sig === 'object' && sig !== null) {
+                // Already an object with name, type, inputs, etc.
+                return {
+                  name: name,
+                  type: sig.type || 'function',
+                  inputs: Array.isArray(sig.inputs) ? sig.inputs : [],
+                  outputs: Array.isArray(sig.outputs) ? sig.outputs : []
+                };
+              } else {
+                return null;
+              }
+            }).filter(func => func !== null);
+            
+            if (template.abi.length === 0) {
+              throw new Error('Failed to convert object ABI to array format');
+            }
+          } else {
+            throw new Error('ABI is not in a recognized format');
+          }
           
           // Extract function selectors from ABI
-          abi.forEach(func => {
+          template.abi.forEach(func => {
             if (func.name && func.type === 'function') {
               const selector = getFunctionSelector(func);
               if (selector) {
@@ -149,19 +299,41 @@ function generateCalldataTemplate(contract) {
     ...template.function_selectors
   };
 
-  // Generate example calldata for common operations
+  // Generate calldata for ALL functions in the ABI
   if (template.abi && template.abi.length > 0) {
-    // Find transfer function
-    const transferFunc = template.abi.find(f => 
-      f.type === 'function' && 
-      (f.name === 'transfer' || f.name === 'transferFrom' || f.name === 'safeTransferFrom')
-    );
+    template.calldata = {};
     
-    if (transferFunc) {
-      template.example_calldata = {
-        transfer: generateExampleCalldata(transferFunc, [template.contract_address, '0x0000000000000000000000000000000000000000', '0x10000000000000000'])
-      };
-    }
+    // Generate calldata for every function
+    template.abi.forEach(func => {
+      if (func.type === 'function') {
+        // Prepare dummy arguments based on function signature
+        const dummyArgs = (func.inputs || []).map(input => {
+          if (input.type === 'address') {
+            return '0x0000000000000000000000000000000000000000';
+          } else if (input.type === 'uint256' || input.type === 'uint256[]') {
+            return '0x10000000000000000'; // 1 in wei
+          } else if (input.type === 'bool') {
+            return true;
+          } else if (input.type === 'bytes32') {
+            return '0x0000000000000000000000000000000000000000000000000000000000000000';
+          } else {
+            // For other types, use a default value
+            return '0x0000000000000000000000000000000000000000000000000000000000000000';
+          }
+        });
+        
+        // Generate calldata
+        const calldata = generateCalldata(func, dummyArgs);
+        if (calldata) {
+          template.calldata[func.name] = calldata;
+        }
+      }
+    });
+    
+    console.log(`[INFO] Generated calldata for ${contract.protocol_slug_slug}`);
+  } else if (template.notes.length === 0) {
+    // No ABI found and no notes, add a note
+    template.notes.push('No ABI found in adapter file');
   }
 
   return template;
@@ -185,9 +357,9 @@ function getFunctionSelector(func) {
 }
 
 /**
- * Generate example calldata
+ * Generate calldata
  */
-function generateExampleCalldata(func, args) {
+function generateCalldata(func, args) {
   try {
     const inputs = (func.inputs || []).map((input, index) => ({
       name: input.name || `arg${index}`,
@@ -217,7 +389,7 @@ function generateExampleCalldata(func, args) {
  * Main execution
  */
 function main() {
-  console.log(`Generating calldata templates for ${contracts.length} contracts...`);
+  console.log(`Generating enhanced calldata templates for ${contracts.length} contracts...`);
   
   const templates = [];
   let successCount = 0;
@@ -229,9 +401,9 @@ function main() {
       const template = generateCalldataTemplate(contract);
       templates.push(template);
       successCount++;
-      console.log(`[${index + 1}/${contracts.length}] Generated template for ${contract.protocol} (${contract.chain_name})`);
+      console.log(`[${index + 1}/${contracts.length}] Generated template for ${contract.protocol_slug_slug} (${contract.chain_name})`);
     } catch (error) {
-      console.error(`[${index + 1}/${contracts.length}] Error generating template for ${contract.protocol}:`, error.message);
+      console.error(`[${index + 1}/${contracts.length}] Error generating template for ${contract.protocol_slug}:`, error.message);
       errorCount++;
     }
   });
@@ -263,7 +435,7 @@ function main() {
   };
   fs.writeFileSync(path.join(outputDir, 'summary.json'), JSON.stringify(summary, null, 2));
   
-  console.log(`\n✅ Calldata template generation complete!`);
+  console.log(`\n✅ Enhanced Calldata template generation complete!`);
   console.log(`📁 Output directory: ${outputDir}`);
   console.log(`📊 Summary: ${successCount} templates generated, ${errorCount} errors`);
   console.log(`📝 Combined template: all-contracts-calldata.json`);
