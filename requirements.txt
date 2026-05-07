@@ -1,0 +1,5 @@
+# Node.js dependencies (install with npm install)
+# No external dependencies required - uses Node.js built-in modules
+
+# For development only:
+# npm install --save-dev @types/node

@@ -1,0 +1,35 @@
+# Node.js
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env*.private
+.env.secret
+
+# Test data
+*.test.json
+test_data/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Cached files
+*.cache
+
+# Distribution
+dist/
+build/
+
+# Credentials
+secrets/
+credentials.json
