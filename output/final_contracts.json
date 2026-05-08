@@ -99443,5 +99443,14 @@
     "chain_id": -1,
     "rpc_url": null,
     "chain_name": "unknown"
+  },
+  {
+    "address": "0x0000000000000000000000000000000000000000",
+    "chain_id": 1,
+    "chain_name": "ethereum",
+    "protocol": "test-token",
+    "protocol_slug": "test-token",
+    "adapter_file": "projects/test-token/index.js",
+    "rpc_url": "https://mainnet.infura.io/v3/YOUR_INFURA_KEY"
   }
 ]

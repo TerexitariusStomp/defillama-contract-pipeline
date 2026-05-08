@@ -4,36 +4,7 @@
   "chain_name": "wabtc",
   "adapter_file": "projects/wasabix/index.js",
   "rpc_url": "https://rpc.wabtc.io",
-  "abi": [
-    {
-      "name": "getPoolTotalDeposited",
-      "type": "function",
-      "inputs": [
-        {
-          "name": "",
-          "type": "uint256 _poolId"
-        }
-      ],
-      "outputs": []
-    },
-    {
-      "name": "totalDeposited",
-      "type": "function",
-      "inputs": [],
-      "outputs": []
-    },
-    {
-      "name": "poolInfo",
-      "type": "function",
-      "inputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "outputs": []
-    }
-  ],
+  "abi": [],
   "function_selectors": {
     "transfer": "a9059cbb",
     "transferFrom": "23b872dd",
@@ -68,9 +39,8 @@
     "zapIn": "0x3c3e7b2b",
     "zapOut": "0x8da9d7ca"
   },
-  "calldata": {
-    "getPoolTotalDeposited": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-    "poolInfo": "0x0000000000000000000000000000000000000000000000010000000000000000"
-  },
-  "notes": []
+  "calldata": {},
+  "notes": [
+    "No ABI found in adapter file"
+  ]
 }

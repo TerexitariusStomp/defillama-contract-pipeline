@@ -4,20 +4,7 @@
   "chain_name": "ethvault",
   "adapter_file": "projects/xbanking/index.js",
   "rpc_url": "https://rpc.ethvault.io",
-  "abi": [
-    {
-      "name": "see_s1ftm_circ",
-      "type": "function",
-      "inputs": [],
-      "outputs": []
-    },
-    {
-      "name": "see_s1tomb_circ",
-      "type": "function",
-      "inputs": [],
-      "outputs": []
-    }
-  ],
+  "abi": [],
   "function_selectors": {
     "transfer": "a9059cbb",
     "transferFrom": "23b872dd",
@@ -53,5 +40,7 @@
     "zapOut": "0x8da9d7ca"
   },
   "calldata": {},
-  "notes": []
+  "notes": [
+    "No ABI found in adapter file"
+  ]
 }

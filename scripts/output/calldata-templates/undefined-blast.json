@@ -4,41 +4,7 @@
   "chain_name": "blast",
   "adapter_file": "projects/metastreet-v2/index.js",
   "rpc_url": "https://rpc.blast.io",
-  "abi": [
-    {
-      "name": "getPools",
-      "type": "function",
-      "inputs": [],
-      "outputs": []
-    },
-    {
-      "name": "collateralToken",
-      "type": "function",
-      "inputs": [],
-      "outputs": []
-    },
-    {
-      "name": "currencyToken",
-      "type": "function",
-      "inputs": [],
-      "outputs": []
-    },
-    {
-      "name": "liquidityNodes",
-      "type": "function",
-      "inputs": [
-        {
-          "name": "",
-          "type": "uint128 startTick"
-        },
-        {
-          "name": "",
-          "type": "uint128 endTick"
-        }
-      ],
-      "outputs": []
-    }
-  ],
+  "abi": [],
   "function_selectors": {
     "transfer": "a9059cbb",
     "transferFrom": "23b872dd",
@@ -73,8 +39,8 @@
     "zapIn": "0x3c3e7b2b",
     "zapOut": "0x8da9d7ca"
   },
-  "calldata": {
-    "liquidityNodes": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
-  },
-  "notes": []
+  "calldata": {},
+  "notes": [
+    "No ABI found in adapter file"
+  ]
 }

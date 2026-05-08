@@ -1,7 +1,7 @@
 {
-  "total_contracts": 9021,
-  "templates_generated": 9021,
+  "total_contracts": 9022,
+  "templates_generated": 9022,
   "errors": 0,
-  "timestamp": "2026-05-07T22:34:29.397Z",
-  "output_directory": "/home/terexitarius/defillama-contract-pipeline/scripts/output/calldata-templates"
+  "timestamp": "2026-05-08T05:34:52.662Z",
+  "output_directory": "/tmp/defillama-contract-pipeline/scripts/output/calldata-templates"
 }

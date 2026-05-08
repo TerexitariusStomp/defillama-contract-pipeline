@@ -4,62 +4,7 @@
   "chain_name": "velit",
   "adapter_file": "projects/liquis/index.js",
   "rpc_url": "https://rpc.velit.io",
-  "abi": [
-    {
-      "name": "poolLength",
-      "type": "function",
-      "inputs": [],
-      "outputs": []
-    },
-    {
-      "name": "poolInfo",
-      "type": "function",
-      "inputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "outputs": []
-    },
-    {
-      "name": "pool",
-      "type": "function",
-      "inputs": [],
-      "outputs": []
-    },
-    {
-      "name": "tickLower",
-      "type": "function",
-      "inputs": [],
-      "outputs": []
-    },
-    {
-      "name": "tickUpper",
-      "type": "function",
-      "inputs": [],
-      "outputs": []
-    },
-    {
-      "name": "getReserves",
-      "type": "function",
-      "inputs": [
-        {
-          "name": "",
-          "type": "tuple(address pool"
-        },
-        {
-          "name": "",
-          "type": "int24 tickLower"
-        },
-        {
-          "name": "",
-          "type": "int24 tickUpper"
-        }
-      ],
-      "outputs": []
-    }
-  ],
+  "abi": [],
   "function_selectors": {
     "transfer": "a9059cbb",
     "transferFrom": "23b872dd",
@@ -94,9 +39,8 @@
     "zapIn": "0x3c3e7b2b",
     "zapOut": "0x8da9d7ca"
   },
-  "calldata": {
-    "poolInfo": "0x0000000000000000000000000000000000000000000000010000000000000000",
-    "getReserves": "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
-  },
-  "notes": []
+  "calldata": {},
+  "notes": [
+    "No ABI found in adapter file"
+  ]
 }

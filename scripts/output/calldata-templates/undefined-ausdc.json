@@ -4,20 +4,7 @@
   "chain_name": "ausdc",
   "adapter_file": "projects/gooddollar/index.js",
   "rpc_url": "https://rpc.ausdc.io",
-  "abi": [
-    {
-      "name": "currentPriceDAI",
-      "type": "function",
-      "inputs": [],
-      "outputs": []
-    },
-    {
-      "name": "totalDelegated",
-      "type": "function",
-      "inputs": [],
-      "outputs": []
-    }
-  ],
+  "abi": [],
   "function_selectors": {
     "transfer": "a9059cbb",
     "transferFrom": "23b872dd",
@@ -53,5 +40,7 @@
     "zapOut": "0x8da9d7ca"
   },
   "calldata": {},
-  "notes": []
+  "notes": [
+    "No ABI found in adapter file"
+  ]
 }

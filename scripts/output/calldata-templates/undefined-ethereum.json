@@ -1,8 +1,8 @@
 {
-  "contract_address": "0x68749665ff8d2d112fa859aa293f07a622782f38",
+  "contract_address": "0x0000000000000000000000000000000000000000",
   "chain_id": 1,
   "chain_name": "ethereum",
-  "adapter_file": "projects/tether-gold/index.js",
+  "adapter_file": "projects/test-token/index.js",
   "rpc_url": "https://eth-mainnet.alchemyapi.io/v2/YOUR_ALCHEMY_KEY",
   "abi": [],
   "function_selectors": {

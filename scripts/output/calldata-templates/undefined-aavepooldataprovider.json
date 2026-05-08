@@ -41,6 +41,6 @@
   },
   "calldata": {},
   "notes": [
-    "Could not parse ABI: Expected property name or '}' in JSON at position 6 (line 2 column 5)"
+    "No ABI found in adapter file"
   ]
 }

@@ -1,5 +1,5 @@
 
-// Test script for enhanced ABI extraction
+// Test script for test-token adapter
 const fs = require('fs');
 const path = require('path');
 
@@ -7,7 +7,7 @@ const path = require('path');
 const { extractABIFromAdapterWithHelpers } = require('./generate-calldata-templates-enhanced.js');
 
 // Path to test-token adapter
-const adapterPath = path.join(__dirname, '.hermes', 'defillama-repos', 'DefiLlama-Adapters', 'projects', 'test-token', 'index.js');
+const adapterPath = path.join(__dirname, '.hermes', 'defillama-repos', 'DefiL Llama-Adapters', 'projects', 'test-token', 'index.js');
 
 if (!fs.existsSync(adapterPath)) {
   console.error('Adapter file not found:', adapterPath);

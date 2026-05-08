@@ -41,6 +41,6 @@
   },
   "calldata": {},
   "notes": [
-    "Could not parse ABI: Expected double-quoted property name in JSON at position 459 (line 3 column 1)"
+    "No ABI found in adapter file"
   ]
 }
